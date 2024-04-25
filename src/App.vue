@@ -51,12 +51,9 @@ export default {
       // You can add code here to add the new todo to Firebase
     },
     checkItem(id) {
-  // Find the index of the todo item in the items array
   const index = this.items.findIndex(item => item.id === id);
   if (index !== -1) {
-    // Update the completed status of the todo item locally
     this.items[index].completed = !this.items[index].completed;
-    // Update the completed status of the todo item in Firebase
     fetch(`https://todoapp-vue-5df62-default-rtdb.firebaseio.com/todo/${id}.json`, {
       method: 'PATCH',
       headers: {
@@ -71,12 +68,20 @@ export default {
         throw new Error('Failed to update todo completion status');
       }
       console.log('Todo completion status updated successfully');
+      // Fetch the updated todo item from Firebase
+      return fetch(`https://todoapp-vue-5df62-default-rtdb.firebaseio.com/todo/${id}.json`);
+    })
+    .then(response => response.json())
+    .then(data => {
+      // Update the local todo item with the updated completion status from Firebase
+      this.items[index].completed = data.completed;
     })
     .catch(error => {
       console.error('Error updating todo completion status:', error);
     });
   }
 },
+
 
     deleteTodo(id) {
       this.items = this.items.filter(item => item.id !== id);
